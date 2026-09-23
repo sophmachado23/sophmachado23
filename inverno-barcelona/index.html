@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nosso Inverno em Barcelona</title>
+<style>
+  :root{
+    --cream:#F6EEDD;
+    --paper:#FFFBF2;
+    --paper-2:#F3E8D3;
+    --coffee:#6B4A38;
+    --coffee-dark:#43301F;
+    --wine:#7C2E38;
+    --wine-soft:#C98A90;
+    --pine:#42513A;
+    --pine-soft:#9DAD8F;
+    --bluegrey:#7C8FA3;
+    --dustyrose:#D6A3A8;
+    --gold:#B8863F;
+    --line:#E4D2AE;
+    --shadow: 0 8px 22px rgba(67,48,31,0.14);
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    overflow-x:hidden;
+    background:
+      radial-gradient(circle at 12% 6%, rgba(184,134,63,0.10), transparent 38%),
+      radial-gradient(circle at 92% 3%, rgba(124,46,56,0.08), transparent 34%),
+      repeating-linear-gradient(0deg, rgba(67,48,31,0.015) 0px, rgba(67,48,31,0.015) 1px, transparent 1px, transparent 3px),
+      var(--cream);
+    color: var(--coffee-dark);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sans{ font-family: -apple-system, "Avenir Next", "Segoe UI", Arial, sans-serif; }
+  .script{ font-family: "Snell Roundhand","Bradley Hand","Segoe Script","Comic Sans MS", cursive; }
+
+  .wrap{ max-width: 900px; margin:0 auto; padding: 0 20px 90px; }
+
+  /* ---------- decorative bits ---------- */
+  .tape{
+    position:absolute;
+    width: 78px; height: 26px;
+    background: repeating-linear-gradient(45deg, rgba(214,163,168,0.55) 0 8px, rgba(214,163,168,0.35) 8px 16px);
+    box-shadow: 0 2px 4px rgba(67,48,31,0.15);
+    opacity:0.9;
+  }
+  .tape.gold{ background: repeating-linear-gradient(45deg, rgba(184,134,63,0.5) 0 8px, rgba(184,134,63,0.3) 8px 16px); }
+  .tape.blue{ background: repeating-linear-gradient(45deg, rgba(124,143,163,0.5) 0 8px, rgba(124,143,163,0.3) 8px 16px); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding: 56px 24px 40px;
+    text-align:center;
+    background: var(--paper);
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    margin-top: 30px;
+    overflow:visible;
+  }
+  .hero .tape{ top:-14px; left: 50%; transform: translateX(-50%) rotate(-4deg); }
+  .hero .corner-star{ position:absolute; font-size:16px; color:var(--gold); opacity:0.8; }
+  .hero .corner-star.c1{ top:22px; left:26px; }
+  .hero .corner-star.c2{ top:22px; right:30px; }
+  .hero h1{
+    font-size: clamp(32px, 6.4vw, 50px);
+    margin: 14px 0 8px;
+    font-weight:600;
+    color: var(--wine);
+    line-height:1.15;
+  }
+  .hero .subtitle{
+    font-size: 16px;
+    color: var(--coffee);
+    opacity:0.85;
+    margin: 0 0 20px;
+    font-style: italic;
+  }
+  .hero .range{
+    display:inline-block;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 13px;
+    letter-spacing:0.04em;
+    color: var(--paper);
+    background: var(--wine);
+    padding: 8px 20px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+  }
+  .hero .phrase{
+    margin-top: 20px;
+    font-size: 17px;
+    color: var(--gold);
+    opacity:0.95;
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  .section{ margin-top: 54px; }
+  .section-title{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom: 22px;
+  }
+  .section-title .num{
+    flex: 0 0 auto;
+    width:34px; height:34px;
+    border-radius: 50%;
+    background: var(--wine);
+    color: var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 15px; font-weight:700;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    box-shadow: var(--shadow);
+  }
+  .section-title h2{
+    margin:0;
+    font-size: 25px;
+    font-weight:600;
+    color: var(--coffee-dark);
+  }
+  .section-title .rule{
+    flex:1;
+    height:1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 11px);
+  }
+
+  /* ---------- CALENDAR (month-grid, kept from previous version) ---------- */
+  .month{
+    position:relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .month .tape{ top:-12px; right: 34px; transform: rotate(5deg); }
+  .month h3{
+    text-align:center;
+    font-weight:600;
+    font-size: 21px;
+    margin: 4px 0 16px;
+    color: var(--wine);
+  }
+  .weekday-row{
+    display:grid; grid-template-columns: repeat(7,1fr);
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 11px; letter-spacing:0.05em;
+    color: var(--coffee); opacity:0.55; text-align:center;
+    margin-bottom:6px;
+  }
+  .day-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:6px; }
+  .day-cell{
+    min-height: 74px;
+    border-radius: 10px;
+    padding: 6px 6px 7px;
+    border: 1px solid transparent;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .day-cell.empty{ visibility:hidden; }
+  .day-cell .num{ font-size:12px; font-weight:600; color:var(--coffee); opacity:0.55; }
+  .day-cell .tag{
+    font-size: 10.5px; line-height:1.25;
+    padding: 2px 5px; border-radius:6px;
+    display:inline-block; width:fit-content;
+  }
+  .day-cell .label{ font-size:10.3px; line-height:1.25; color:var(--coffee-dark); opacity:0.9; }
+
+  .day-cell.plain{ background:transparent; }
+  .day-cell.travel{ background: rgba(124,143,163,0.14); border-color: var(--bluegrey); }
+  .day-cell.travel .tag{ background: var(--bluegrey); color:#fff; }
+  .day-cell.holiday{ background: rgba(66,81,58,0.13); border-color: var(--pine-soft); }
+  .day-cell.holiday .tag{ background: var(--pine); color:#fff; }
+  .day-cell.trip{ background: rgba(184,134,63,0.16); border-color: var(--gold); }
+  .day-cell.trip .tag{ background: var(--gold); color:#fff; }
+  .day-cell.birthday{ background: linear-gradient(135deg, rgba(184,134,63,0.22), rgba(124,46,56,0.14)); border-color: var(--gold); }
+  .day-cell.birthday .tag{ background: var(--wine); color:#fff; }
+  .day-cell.birthday .num{ color: var(--wine); font-weight:700; }
+
+  .day-cell.clickable{ cursor:pointer; transition: transform .12s ease, box-shadow .12s ease; }
+  .day-cell.clickable:hover{ transform: translateY(-2px); box-shadow: 0 6px 14px rgba(67,48,31,0.16); }
+  .day-cell.clickable .label::after{ content:" ›"; opacity:0.6; }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size:12px; color:var(--coffee); opacity:0.75; margin: 4px 0 0;
+  }
+
+  @media (max-width:600px){
+    .wrap{ padding: 0 10px 90px; }
+    .hero{ padding: 44px 14px 30px; }
+    .hero .range{ font-size:11.5px; padding:7px 14px; }
+    .month{ padding: 16px 8px 16px; border-radius:14px; }
+    .month h3{ font-size:17px; margin-bottom:12px; }
+    .weekday-row{ font-size:9px; }
+    .day-grid{ gap:3px; }
+    .day-cell{
+      min-height: 54px;
+      padding: 3px 2px 4px;
+      border-radius: 7px;
+      gap:2px;
+      overflow: hidden;
+    }
+    .day-cell .num{ font-size:10px; }
+    .day-cell .tag{ font-size:9px; padding:1px 4px; border-radius:5px; }
+    .day-cell .label{
+      font-size: 7.6px;
+      line-height: 1.15;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .day-cell.clickable .label::after{ content:" ›"; }
+    .legend{ font-size:10.5px; gap:6px 10px; }
+  }
+
+  @media (max-width:360px){
+    .day-cell{ min-height:48px; }
+    .day-cell .label{ font-size:7px; }
+  }
+
+  /* ---------- LUGARES PARA IR (section 2) ---------- */
+  .places-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  @media (max-width:760px){ .places-grid{ grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:480px){ .places-grid{ grid-template-columns: 1fr; } }
+
+  .place-card{
+    position:relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 16px 16px;
+    box-shadow: var(--shadow);
+  }
+  .place-card:nth-child(odd){ transform: rotate(-0.6deg); }
+  .place-card:nth-child(even){ transform: rotate(0.6deg); }
+  .place-card .tape{ width:56px; height:20px; top:-10px; left:50%; transform: translateX(-50%) rotate(-3deg); }
+  .place-card h4{
+    margin: 6px 0 12px;
+    font-size: 16px; font-weight:600; color: var(--wine);
+    text-align:center;
+  }
+  .place-item{
+    display:flex; flex-direction:column; gap:6px;
+    padding: 8px 4px;
+    border-bottom: 1px dashed var(--line);
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 13.6px;
+  }
+  .place-item:last-child{ border-bottom:none; }
+  .place-item .name.been{ text-decoration: line-through; opacity:0.5; }
+  .place-status{ display:flex; gap:6px; }
+  .status-btn{
+    font-size: 10.6px; padding: 4px 9px; border-radius: 999px;
+    border: 1px solid var(--line); background: transparent; color: var(--coffee);
+    cursor:pointer; font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    transition: all .15s ease;
+  }
+  .status-btn.want.active{ background: var(--bluegrey); color:#fff; border-color: var(--bluegrey); }
+  .status-btn.been.active{ background: var(--pine); color:#fff; border-color: var(--pine); }
+
+  /* ---------- E SE A GENTE FOSSE (section 3) ---------- */
+  .ideas-grid{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  }
+  @media (max-width:760px){ .ideas-grid{ grid-template-columns: repeat(3,1fr); } }
+  @media (max-width:520px){ .ideas-grid{ grid-template-columns: repeat(2,1fr); } }
+
+  .idea-card{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow:hidden;
+    box-shadow: var(--shadow);
+    display:flex; flex-direction:column;
+  }
+  .idea-illustration{
+    height: 88px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 34px;
+    background: linear-gradient(135deg, var(--paper-2), var(--paper));
+    border-bottom: 1px dashed var(--line);
+  }
+  .idea-body{ padding: 10px 10px 12px; font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif; }
+  .idea-body h5{ margin:0 0 4px; font-size: 13.4px; font-weight:700; color: var(--wine); }
+  .idea-body p{ margin: 0 0 8px; font-size: 11.6px; color: var(--coffee); opacity:0.85; line-height:1.35; }
+  .idea-controls{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .idea-check{ display:flex; align-items:center; gap:5px; font-size:11px; color: var(--coffee); cursor:pointer; }
+  .idea-check input{ display:none; }
+  .idea-check .box{
+    width:14px; height:14px; border-radius:4px; border: 1.3px solid var(--gold);
+    display:flex; align-items:center; justify-content:center; flex:0 0 14px;
+  }
+  .idea-check .box::after{ content:""; width:6px; height:6px; border-radius:2px; background: var(--gold); opacity:0; transform: scale(.5); transition: all .15s ease; }
+  .idea-check input:checked ~ .box::after{ opacity:1; transform: scale(1); }
+  .idea-fit-btn{
+    font-size: 10px; padding: 4px 8px; border-radius: 999px;
+    border: 1px solid var(--wine-soft); background: transparent; color: var(--wine);
+    cursor:pointer; transition: all .15s ease; white-space:nowrap;
+  }
+  .idea-fit-btn.active{ background: var(--wine); color:#fff; }
+
+  /* ---------- PROGRESS CARD ---------- */
+  .progress-card{
+    margin-top: 46px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display:flex; align-items:center; gap:16px;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+  }
+  .progress-card .icon{ font-size: 26px; }
+  .progress-card .info{ flex:1; }
+  .progress-card .count{ font-size: 14px; color: var(--coffee-dark); font-weight:600; margin-bottom:6px; }
+  .progress-bar{ height: 8px; border-radius: 999px; background: var(--paper-2); overflow:hidden; }
+  .progress-bar-fill{ height:100%; background: linear-gradient(90deg, var(--gold), var(--wine)); transition: width .3s ease; }
+
+  /* ---------- PDF / PRINT BUTTONS ---------- */
+  .toolbar{
+    display:flex; justify-content:center; gap:12px; flex-wrap:wrap;
+    margin-top: 34px;
+  }
+  .toolbar button{
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 13px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--wine);
+    background: var(--wine);
+    color: var(--paper);
+    cursor:pointer;
+    box-shadow: var(--shadow);
+    transition: transform .12s ease;
+  }
+  .toolbar button.secondary{ background: transparent; color: var(--wine); }
+  .toolbar button:hover{ transform: translateY(-1px); }
+
+  footer{
+    text-align:center; margin-top: 50px;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 13px; font-style: italic; color: var(--coffee); opacity:0.6;
+  }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background: rgba(67,48,31,0.45);
+    display:none; align-items:center; justify-content:center;
+    padding: 20px; z-index: 100;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background: var(--paper);
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    max-width: 480px; width:100%;
+    max-height: 84vh; overflow-y:auto;
+    padding: 26px 24px 22px;
+    box-shadow: 0 20px 50px rgba(67,48,31,0.35);
+    position:relative;
+    animation: pop .18s ease;
+  }
+  @keyframes pop{ from{ opacity:0; transform: scale(.96); } to{ opacity:1; transform: scale(1);} }
+  .modal-close{
+    position:absolute; top:14px; right:16px;
+    width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--line); background: var(--paper-2);
+    color: var(--coffee-dark); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-box h3{ margin: 0 26px 4px 0; font-size: 20px; color: var(--wine); }
+  .modal-box .modal-date{
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 12px; color: var(--coffee); opacity:0.65; margin-bottom: 16px;
+  }
+  .modal-box .roteiro-list{
+    list-style:none; margin:0; padding:0;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 14px; color: var(--coffee-dark);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .modal-box .roteiro-list li{
+    padding-left: 16px; position:relative; line-height:1.4;
+  }
+  .modal-box .roteiro-list li::before{
+    content:"·"; position:absolute; left:0; color: var(--gold); font-weight:700;
+  }
+  .modal-box .roteiro-subtitle{
+    font-size: 13px; font-weight:700; color: var(--wine); margin: 14px 0 6px;
+  }
+  .modal-box .note{
+    margin-top: 16px; padding: 10px 12px;
+    background: var(--paper-2); border-radius: 10px;
+    font-family: -apple-system, "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 12.5px; color: var(--coffee); font-style: italic;
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    body{ background: var(--cream) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .toolbar, .modal-overlay{ display:none !important; }
+    .section{ page-break-inside: avoid; }
+    .wrap{ padding: 0 8px 20px; }
+    .day-cell, .place-card, .idea-card, .month, .hero{ box-shadow:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <span class="tape gold"></span>
+    <span class="corner-star c1">✦</span>
+    <span class="corner-star c2">✧</span>
+    <h1>Nosso Inverno<br>em Barcelona</h1>
+    <p class="subtitle">cafés, luzinhas de Natal, pequenos passeios &amp; dias gostosos juntas</p>
+    <span class="range">19 de dezembro de 2026 → 27 de janeiro de 2027</span>
+    <p class="phrase script">“um inverno, uma cidade e muitos pequenos momentos ♡”</p>
+  </div>
+
+  <!-- ============ 1. NOSSO CALENDÁRIO ============ -->
+  <div class="section" id="calendar-section">
+    <div class="section-title">
+      <span class="num">1</span>
+      <h2>Nosso calendário</h2>
+      <span class="rule"></span>
+    </div>
+    <div id="calendar-mount"></div>
+    <div class="legend" id="legend-mount"></div>
+  </div>
+
+  <!-- ============ 2. LUGARES PARA IR ============ -->
+  <div class="section" id="places-section">
+    <div class="section-title">
+      <span class="num">2</span>
+      <h2>Lugares para ir</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="places-grid" id="places-mount"></div>
+  </div>
+
+  <!-- ============ 3. E SE A GENTE FOSSE...? ============ -->
+  <div class="section" id="ideas-section">
+    <div class="section-title">
+      <span class="num">3</span>
+      <h2>E se a gente fosse...?</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="ideas-grid" id="ideas-mount"></div>
+  </div>
+
+  <div class="progress-card">
+    <div class="icon">☕</div>
+    <div class="info">
+      <div class="count" id="progress-count">0 de 0 pequenas aventuras vividas</div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width:0%;"></div></div>
+    </div>
+  </div>
+
+  <div class="toolbar no-print">
+    <button onclick="window.print()">Exportar planner em PDF</button>
+    <button class="secondary" onclick="window.print()">Imprimir / Salvar como PDF</button>
+  </div>
+
+  <footer>um inverno, uma cidade e muitos pequenos momentos ♡</footer>
+
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modal-title"></h3>
+    <div class="modal-date" id="modal-date"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+/* ================= CALENDAR DATA ================= */
+
+const events = {
+  "2026-12-19": { tag:"✈️", label:"Chegada em Barcelona", type:"travel" },
+  "2026-12-20": { tag:"🎄", label:"Mercados de Natal", type:"holiday" },
+  "2026-12-24": { tag:"🎄", label:"Ceia de Natal", type:"holiday" },
+  "2026-12-25": { tag:"🎄", label:"Natal", type:"holiday" },
+  "2026-12-26": { tag:"🚆", label:"Zaragoza", type:"trip", roteiro:"zaragoza" },
+  "2026-12-27": { tag:"🚆", label:"Zaragoza", type:"trip", roteiro:"zaragoza-dia2" },
+  "2026-12-31": { tag:"🥂", label:"Jantar de Ano Novo", type:"holiday" },
+
+  "2027-01-06": { tag:"👑", label:"Día de Reyes", type:"holiday" },
+  "2027-01-09": { tag:"🇵🇹", label:"Lisboa", type:"travel", roteiro:"lisboa1" },
+  "2027-01-10": { tag:"🇵🇹", label:"Lisboa", type:"travel", roteiro:"fatima" },
+  "2027-01-11": { tag:"🇵🇹", label:"Lisboa", type:"travel", roteiro:"lisboa3" },
+  "2027-01-16": { tag:"🚆", label:"Sitges ou Girona", type:"trip" },
+  "2027-01-22": { tag:"🇮🇹", label:"Florença", type:"travel", roteiro:"floren1" },
+  "2027-01-23": { tag:"🇮🇹🎂", label:"Florença — aniversário", type:"birthday", roteiro:"floren2" },
+  "2027-01-24": { tag:"🇮🇹", label:"Florença", type:"travel", roteiro:"floren3" },
+  "2027-01-27": { tag:"✈️", label:"Volta ao Brasil", type:"travel" },
+};
+
+const roteiros = {
+  "lisboa1": {
+    title: "Primeiro dia em Lisboa",
+    date: "09 de janeiro · sábado",
+    html: `<ul class="roteiro-list">
+      <li>08h30 — Chegada</li>
+      <li>10h00 — Café na Confeitaria Nacional</li>
+      <li>11h00 — Igreja de Santo António + Sé</li>
+      <li>12h00 — Rua Augusta + Praça do Comércio</li>
+      <li>13h00 — Almoço no O Beco</li>
+      <li>14h30 — Ir para Belém</li>
+      <li>16h00 — Pastéis de Belém</li>
+      <li>16h30–18h00 — Belém: Jerónimos, Padrão, Torre de Belém</li>
+      <li>20h00 — Pizzico</li>
+    </ul>`
+  },
+  "fatima": {
+    title: "Fátima + Lisboa",
+    date: "10 de janeiro · domingo",
+    html: `<ul class="roteiro-list">
+      <li>08h00 — Café da manhã na Fabrica de Nata</li>
+      <li>08h30 — Saída para Fátima</li>
+      <li>10h00–12h30 — Santuário de Fátima</li>
+      <li>12h30 — Almoço: Apollo Caffé</li>
+      <li>13h30/14h00 — Volta para Lisboa</li>
+      <li>15h30 — Chegada</li>
+      <li>16h00 — Chiado + Carmo + Miradouro de São Pedro de Alcântara</li>
+      <li>20h00 — Jantar: Tasca Zebras</li>
+    </ul>`
+  },
+  "lisboa3": {
+    title: "Última manhã em Lisboa",
+    date: "11 de janeiro · segunda",
+    html: `<ul class="roteiro-list">
+      <li>08h00 — Café da manhã</li>
+      <li>09h00–12h00 — Trabalho</li>
+      <li>12h00 — Almoço no Bonjardim</li>
+      <li>13h00–15h30 — Trabalho</li>
+      <li>15h30 — Malas + aeroporto</li>
+      <li>17h40 — Voo para Barcelona</li>
+    </ul>`
+  },
+  "zaragoza": {
+    title: "Zaragoza — dia 1",
+    date: "26 de dezembro · sábado",
+    html: `<ul class="roteiro-list">
+      <li>07h00–08h00 — Trem Barcelona-Sants → Zaragoza-Delicias</li>
+      <li>09h00 — Chegada e deslocamento até o centro histórico</li>
+      <li>09h30 — Café da manhã e início do passeio pela Plaza del Pilar</li>
+      <li>10h00 — Basílica del Pilar — visita tranquila e, se estivermos com disposição, subida à torre</li>
+      <li>11h15 — La Seo, a Catedral del Salvador</li>
+      <li>12h15 — Caminhada pelo centro histórico: Plaza del Pilar, Calle Alfonso I, Plaza de España e região de El Tubo</li>
+      <li>13h30 — Almoço no centro</li>
+      <li>15h00 — Palacio de la Aljafería</li>
+      <li>16h30 — Retorno ao centro</li>
+      <li>17h00 — Caminhada pela margem do Ebro e tempo livre para café, compras e descanso</li>
+      <li>Noite — Jantar em Zaragoza</li>
+    </ul>`
+  },
+  "zaragoza-dia2": {
+    title: "Zaragoza — dia 2",
+    date: "27 de dezembro · domingo",
+    html: `<ul class="roteiro-list">
+      <li>Manhã livre para aproveitar a cidade com calma</li>
+      <li>Café da manhã tranquilo</li>
+      <li>Passeio pelo que ainda quisermos ver</li>
+      <li>Trem de volta para Barcelona-Sants</li>
+    </ul>
+    <div class="note">Roteiro do segundo dia ainda em aberto — me conta os horários e paradas quando tiver definido que eu atualizo aqui.</div>`
+  },
+  "floren1": {
+    title: "Primeiro dia em Florença",
+    date: "22 de janeiro · sexta",
+    html: `<ul class="roteiro-list">
+      <li>09h15 — Chegada em Florença</li>
+      <li>10h15 — Chegada ao St. James e deixar as malas</li>
+      <li>10h45 — Café no Vecchio Forno</li>
+      <li>11h30 — Ir para a região do Duomo</li>
+      <li>12h00 — Subida à Cúpula de Brunelleschi</li>
+      <li>13h30 — Almoço: Stuzzicheria De Neri ou All'Antico Vinaio</li>
+      <li>14h45 — Piazza del Duomo + Piazza della Repubblica</li>
+      <li>15h30 — Piazza della Signoria + Palazzo Vecchio por fora</li>
+      <li>16h00 — Ponte Vecchio</li>
+      <li>16h30 — Passeio pelo Oltrarno</li>
+      <li>17h30 — Pausa para fugir do frio</li>
+      <li>19h30 — Jantar: Ristorante Pizzeria La Piazzetta di Lorenzo</li>
+    </ul>
+    <div class="note">A única entrada planejada é para o Duomo / Cupola.</div>`
+  },
+  "floren2": {
+    title: "Meu aniversário em Florença ♡",
+    date: "23 de janeiro · sábado",
+    html: `<ul class="roteiro-list">
+      <li>08h30 — Acordar sem pressa</li>
+      <li>09h00 — Café da manhã de aniversário no Melaleuca Florence Bakery + Bistrot</li>
+      <li>10h30 — Passeio tranquilo pelo centro</li>
+      <li>11h00 — Lojinhas e ruas do centro histórico</li>
+      <li>12h30 — Giunti Odeon — Cinema</li>
+      <li>13h30 — Almoço: Trattoria Marione</li>
+      <li>14h30 — Continuar pelas lojinhas</li>
+      <li>15h30 — Visitar a Signum Florence</li>
+      <li>16h00 — Tomar affogato na Vivoli</li>
+      <li>17h00 — Piazzale Michelangelo, somente se o tempo estiver bom, para ver o pôr do sol</li>
+      <li>18h00 — Voltar para o hotel</li>
+      <li>19h30 — Tomar banho e se arrumar</li>
+      <li>20h00 — Jantar de aniversário na Trattoria Zà Zà</li>
+    </ul>
+    <div class="note">Dia leve e especial — sem Duomo ou Cupola hoje.</div>`
+  },
+  "floren3": {
+    title: "Último dia em Florença",
+    date: "24 de janeiro · domingo",
+    html: `<ul class="roteiro-list">
+      <li>08h30 — Café da manhã</li>
+      <li>09h30 — Check-out e deixar as malas no hotel</li>
+      <li>10h00 — San Lorenzo</li>
+      <li>10h30 — Mercado Central</li>
+      <li>11h30 — Lojinhas / compras</li>
+      <li>12h30 — Almoço no mercado central</li>
+      <li>14h00 — Último passeio pelo centro</li>
+      <li>14h30 — Piazza della Repubblica + Via de' Tornabuoni</li>
+      <li>15h30 — l' Girone De' Ghiotti ou algum café</li>
+      <li>16h00 — Voltar ao St. James</li>
+      <li>16h15 — Pegar as malas</li>
+      <li>16h30/16h45 — Sair para o aeroporto</li>
+      <li>21h00 — ✈️ voo de volta</li>
+    </ul>`
+  }
+};
+
+const legendItems = [
+  { tag:"✈️", label:"viagem" },
+  { tag:"🚆", label:"day trip" },
+  { tag:"🎄", label:"natal / feriado" },
+  { tag:"👑", label:"reis" },
+  { tag:"🥂", label:"ano novo" },
+  { tag:"🎂", label:"aniversário" },
+];
+
+const places = {
+  "☕ Café da manhã": ["Waffle — Eixample", "A Volta Vol — Barceloneta", "Candela Canela — Gràcia"],
+  "🛍 Lojas": ["Diagonal Mar", "Chez Paulette — pulseira", "248 Colmado", "Action"],
+  "🎄 Natal": ["Mercadinho da Catedral", "Mercadinho da Sagrada Família", "Mercadinho de Barceloneta"],
+  "🌊 Barcelona": ["El Born", "Barceloneta", "Port Vell", "Montjuïc", "Gràcia"],
+  "🚆 Mini Trips": ["Sitges", "Girona", "Montserrat", "Zaragoza"],
+  "🍕 Restaurantes": ["Parking Pizza"],
+};
+
+const ideas = [
+  { id:"filme",  icon:"🌮", title:"Noite de filme em casa", desc:"Comida mexicana, cobertor e filme." },
+  { id:"ramen",  icon:"🍜", title:"Provar ramen juntas", desc:"Um jantar aconchegante para experimentar." },
+  { id:"cafes",  icon:"☕", title:"Conhecer cafés", desc:"Escolher um café bonito e ficar sem pressa." },
+  { id:"tapas",  icon:"🍢", title:"Comer tapas", desc:"Uma noite de petiscos e conversa." },
+  { id:"doces",  icon:"🍰", title:"Comer doces diferentes", desc:"Sair em busca de uma sobremesa nova." },
+  { id:"fotos",  icon:"📷", title:"Dia de fotos", desc:"Escolher um bairro bonito e registrar o dia." },
+  { id:"sagrada",icon:"⛪", title:"Sagrada Família", desc:"Conhecer a basílica e os arredores." },
+];
+
+/* ================= STORAGE ================= */
+
+function loadJSON(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; }
+}
+function saveJSON(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
+function slug(s){ return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
+
+/* ================= CALENDAR RENDER ================= */
+
+const WEEKDAYS = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+const MONTH_NAMES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function pad(n){ return n<10 ? "0"+n : ""+n; }
+
+function renderMonth(year, monthIndex){
+  const first = new Date(year, monthIndex, 1);
+  const daysInMonth = new Date(year, monthIndex+1, 0).getDate();
+  let startOffset = first.getDay() - 1;
+  if(startOffset < 0) startOffset = 6;
+
+  const monthEl = document.createElement("div");
+  monthEl.className = "month";
+  monthEl.innerHTML = '<span class="tape blue"></span>';
+
+  const h3 = document.createElement("h3");
+  h3.textContent = MONTH_NAMES[monthIndex] + " de " + year;
+  monthEl.appendChild(h3);
+
+  const weekRow = document.createElement("div");
+  weekRow.className = "weekday-row";
+  WEEKDAYS.forEach(w => { const d = document.createElement("div"); d.textContent = w; weekRow.appendChild(d); });
+  monthEl.appendChild(weekRow);
+
+  const grid = document.createElement("div");
+  grid.className = "day-grid";
+
+  for(let i=0;i<startOffset;i++){
+    const empty = document.createElement("div");
+    empty.className = "day-cell empty";
+    grid.appendChild(empty);
+  }
+
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = year + "-" + pad(monthIndex+1) + "-" + pad(day);
+    const ev = events[dateStr];
+    const cell = document.createElement("div");
+    cell.className = "day-cell " + (ev ? ev.type : "plain") + (ev && ev.roteiro ? " clickable" : "");
+
+    const num = document.createElement("div");
+    num.className = "num";
+    num.textContent = day;
+    cell.appendChild(num);
+
+    if(ev){
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = ev.tag;
+      cell.appendChild(tag);
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = ev.label;
+      cell.appendChild(label);
+
+      if(ev.roteiro){
+        cell.addEventListener("click", () => openModal(ev.roteiro));
+      }
+    }
+    grid.appendChild(cell);
+  }
+  monthEl.appendChild(grid);
+  return monthEl;
+}
+
+document.getElementById("calendar-mount").appendChild(renderMonth(2026, 11));
+document.getElementById("calendar-mount").appendChild(renderMonth(2027, 0));
+
+const legendMount = document.getElementById("legend-mount");
+legendItems.forEach(l => {
+  const span = document.createElement("span");
+  span.textContent = l.tag + " " + l.label;
+  legendMount.appendChild(span);
+});
+
+/* ================= MODAL ================= */
+
+function openModal(key){
+  const r = roteiros[key];
+  if(!r) return;
+  document.getElementById("modal-title").textContent = r.title;
+  document.getElementById("modal-date").textContent = r.date;
+  document.getElementById("modal-content").innerHTML = r.html;
+  document.getElementById("modal-overlay").classList.add("show");
+}
+function closeModal(){ document.getElementById("modal-overlay").classList.remove("show"); }
+document.getElementById("modal-overlay").addEventListener("click", (e) => {
+  if(e.target.id === "modal-overlay") closeModal();
+});
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+
+/* ================= PLACES RENDER ================= */
+
+const placeState = loadJSON("wib_places", {});
+
+function updateProgress(){
+  let total = 0, done = 0;
+  Object.entries(places).forEach(([cat, items]) => {
+    items.forEach(item => {
+      const id = "place_" + slug(cat) + "_" + slug(item);
+      total++;
+      if(placeState[id] === "been") done++;
+    });
+  });
+  ideas.forEach(idea => {
+    total++;
+    if(ideaState[idea.id] && ideaState[idea.id].done) done++;
+  });
+  document.getElementById("progress-count").textContent = done + " de " + total + " pequenas aventuras vividas";
+  document.getElementById("progress-fill").style.width = (total ? (done/total*100) : 0) + "%";
+}
+
+const placesMount = document.getElementById("places-mount");
+Object.entries(places).forEach(([cat, items]) => {
+  const card = document.createElement("div");
+  card.className = "place-card";
+  card.innerHTML = '<span class="tape"></span>';
+
+  const h4 = document.createElement("h4");
+  h4.textContent = cat;
+  card.appendChild(h4);
+
+  items.forEach(item => {
+    const id = "place_" + slug(cat) + "_" + slug(item);
+    if(!placeState[id]) placeState[id] = "want";
+
+    const row = document.createElement("div");
+    row.className = "place-item";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "name";
+    nameEl.textContent = item;
+
+    const statusWrap = document.createElement("div");
+    statusWrap.className = "place-status";
+
+    const wantBtn = document.createElement("button");
+    wantBtn.className = "status-btn want";
+    wantBtn.textContent = "quero ir";
+
+    const beenBtn = document.createElement("button");
+    beenBtn.className = "status-btn been";
+    beenBtn.textContent = "já fomos";
+
+    function refresh(){
+      const s = placeState[id];
+      wantBtn.classList.toggle("active", s === "want");
+      beenBtn.classList.toggle("active", s === "been");
+      nameEl.classList.toggle("been", s === "been");
+    }
+    wantBtn.addEventListener("click", () => { placeState[id]="want"; saveJSON("wib_places", placeState); refresh(); updateProgress(); });
+    beenBtn.addEventListener("click", () => { placeState[id]="been"; saveJSON("wib_places", placeState); refresh(); updateProgress(); });
+    refresh();
+
+    statusWrap.appendChild(wantBtn);
+    statusWrap.appendChild(beenBtn);
+    row.appendChild(nameEl);
+    row.appendChild(statusWrap);
+    card.appendChild(row);
+  });
+
+  placesMount.appendChild(card);
+});
+
+/* ================= IDEAS RENDER ================= */
+
+const ideaState = loadJSON("wib_ideas", {});
+
+const ideasMount = document.getElementById("ideas-mount");
+ideas.forEach(idea => {
+  if(!ideaState[idea.id]) ideaState[idea.id] = { done:false, fit:false };
+
+  const card = document.createElement("div");
+  card.className = "idea-card";
+
+  const illus = document.createElement("div");
+  illus.className = "idea-illustration";
+  illus.textContent = idea.icon;
+  card.appendChild(illus);
+
+  const body = document.createElement("div");
+  body.className = "idea-body";
+
+  const h5 = document.createElement("h5");
+  h5.textContent = idea.title;
+  body.appendChild(h5);
+
+  const p = document.createElement("p");
+  p.textContent = idea.desc;
+  body.appendChild(p);
+
+  const controls = document.createElement("div");
+  controls.className = "idea-controls";
+
+  const label = document.createElement("label");
+  label.className = "idea-check";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = ideaState[idea.id].done;
+  const box = document.createElement("span");
+  box.className = "box";
+  const txt = document.createElement("span");
+  txt.textContent = "feito";
+  label.appendChild(input); label.appendChild(box); label.appendChild(txt);
+  input.addEventListener("change", () => {
+    ideaState[idea.id].done = input.checked;
+    saveJSON("wib_ideas", ideaState);
+    updateProgress();
+  });
+
+  const fitBtn = document.createElement("button");
+  fitBtn.className = "idea-fit-btn" + (ideaState[idea.id].fit ? " active" : "");
+  fitBtn.textContent = ideaState[idea.id].fit ? "no radar ♡" : "encaixar";
+  fitBtn.addEventListener("click", () => {
+    ideaState[idea.id].fit = !ideaState[idea.id].fit;
+    saveJSON("wib_ideas", ideaState);
+    fitBtn.classList.toggle("active", ideaState[idea.id].fit);
+    fitBtn.textContent = ideaState[idea.id].fit ? "no radar ♡" : "encaixar";
+  });
+
+  controls.appendChild(label);
+  controls.appendChild(fitBtn);
+  body.appendChild(controls);
+  card.appendChild(body);
+  ideasMount.appendChild(card);
+});
+
+updateProgress();
+</script>
+</body>
+</html>
