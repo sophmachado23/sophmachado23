@@ -322,6 +322,7 @@
   .progress-card .info{ flex:1; }
   .progress-card .count{ font-size: 14px; color: var(--coffee-dark); font-weight:600; margin-bottom:6px; }
   .progress-bar{ height: 8px; border-radius: 999px; background: var(--paper-2); overflow:hidden; }
+  .sync-note{ margin-top:8px; font-size:11.5px; font-style:italic; color: var(--coffee); opacity:0.7; }
   .progress-bar-fill{ height:100%; background: linear-gradient(90deg, var(--gold), var(--wine)); transition: width .3s ease; }
 
   /* ---------- PDF / PRINT BUTTONS ---------- */
@@ -463,6 +464,7 @@
     <div class="info">
       <div class="count" id="progress-count">0 de 0 pequenas aventuras vividas</div>
       <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width:0%;"></div></div>
+      <div class="sync-note" id="sync-note">marcações salvas neste navegador</div>
     </div>
   </div>
 
@@ -674,6 +676,63 @@ function loadJSON(key, fallback){
 function saveJSON(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
 function slug(s){ return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
 
+/* ================= SHARED STORAGE (db) ================= */
+/* Quando a página roda como Artifact, as marcações ficam num banco
+   compartilhado: todo mundo vê o que qualquer pessoa marcar.
+   Fora do Artifact, cai no localStorage do navegador. */
+
+let db = null;
+const placeRefreshers = {};
+const ideaRefreshers = {};
+const writeQueue = {};
+
+function setSyncNote(text){
+  const el = document.getElementById("sync-note");
+  if(el) el.textContent = text;
+}
+
+function persist(collection, id, body, localKey, localState){
+  if(!db){ saveJSON(localKey, localState); return; }
+  const key = collection + "/" + id;
+  writeQueue[key] = (writeQueue[key] || Promise.resolve())
+    .then(() => db.collection(collection).doc(id).set(body))
+    .then(() => setSyncNote("salvo para todas ♡"))
+    .catch(err => {
+      if(err && err.code === "invalid_argument") setSyncNote("você só pode visualizar — as marcações não foram salvas");
+      else setSyncNote("não consegui salvar agora — tente de novo em instantes");
+    });
+}
+function savePlace(id){ persist("lugares", id, { status: placeState[id] }, "wib_places", placeState); }
+function saveIdea(id){ persist("ideias", id, { done: !!ideaState[id].done, fit: !!ideaState[id].fit }, "wib_ideas", ideaState); }
+
+function connectSharedStore(){
+  if(!(window.claude && window.claude.use)) return;
+  window.claude.use("db").then(store => {
+    if(!store) return;
+    db = store;
+    // o banco compartilhado é a fonte da verdade: descarta o que ficou só neste navegador
+    Object.keys(placeState).forEach(id => { placeState[id] = "want"; if(placeRefreshers[id]) placeRefreshers[id](); });
+    Object.keys(ideaState).forEach(id => { ideaState[id] = { done:false, fit:false }; if(ideaRefreshers[id]) ideaRefreshers[id](); });
+    updateProgress();
+    setSyncNote("marcações compartilhadas · atualizam ao vivo");
+    db.collection("lugares").onSnapshot(snap => {
+      snap.docs.forEach(d => {
+        const s = d.data() && d.data().status;
+        if(s === "want" || s === "been"){ placeState[d.id] = s; if(placeRefreshers[d.id]) placeRefreshers[d.id](); }
+      });
+      updateProgress();
+    }, () => setSyncNote("conexão com as marcações perdida — recarregue a página"));
+    db.collection("ideias").onSnapshot(snap => {
+      snap.docs.forEach(d => {
+        const v = d.data() || {};
+        ideaState[d.id] = { done: !!v.done, fit: !!v.fit };
+        if(ideaRefreshers[d.id]) ideaRefreshers[d.id]();
+      });
+      updateProgress();
+    }, () => setSyncNote("conexão com as marcações perdida — recarregue a página"));
+  }).catch(() => {});
+}
+
 /* ================= CALENDAR RENDER ================= */
 
 const WEEKDAYS = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
@@ -825,8 +884,9 @@ Object.entries(places).forEach(([cat, items]) => {
       beenBtn.classList.toggle("active", s === "been");
       nameEl.classList.toggle("been", s === "been");
     }
-    wantBtn.addEventListener("click", () => { placeState[id]="want"; saveJSON("wib_places", placeState); refresh(); updateProgress(); });
-    beenBtn.addEventListener("click", () => { placeState[id]="been"; saveJSON("wib_places", placeState); refresh(); updateProgress(); });
+    wantBtn.addEventListener("click", () => { if(placeState[id]==="want") return; placeState[id]="want"; savePlace(id); refresh(); updateProgress(); });
+    beenBtn.addEventListener("click", () => { if(placeState[id]==="been") return; placeState[id]="been"; savePlace(id); refresh(); updateProgress(); });
+    placeRefreshers[id] = refresh;
     refresh();
 
     statusWrap.appendChild(wantBtn);
@@ -881,7 +941,7 @@ ideas.forEach(idea => {
   label.appendChild(input); label.appendChild(box); label.appendChild(txt);
   input.addEventListener("change", () => {
     ideaState[idea.id].done = input.checked;
-    saveJSON("wib_ideas", ideaState);
+    saveIdea(idea.id);
     updateProgress();
   });
 
@@ -890,10 +950,16 @@ ideas.forEach(idea => {
   fitBtn.textContent = ideaState[idea.id].fit ? "no radar ♡" : "encaixar";
   fitBtn.addEventListener("click", () => {
     ideaState[idea.id].fit = !ideaState[idea.id].fit;
-    saveJSON("wib_ideas", ideaState);
+    saveIdea(idea.id);
+    refreshIdea();
+  });
+
+  function refreshIdea(){
+    input.checked = ideaState[idea.id].done;
     fitBtn.classList.toggle("active", ideaState[idea.id].fit);
     fitBtn.textContent = ideaState[idea.id].fit ? "no radar ♡" : "encaixar";
-  });
+  }
+  ideaRefreshers[idea.id] = refreshIdea;
 
   controls.appendChild(label);
   controls.appendChild(fitBtn);
@@ -903,6 +969,7 @@ ideas.forEach(idea => {
 });
 
 updateProgress();
+connectSharedStore();
 </script>
 </body>
 </html>
